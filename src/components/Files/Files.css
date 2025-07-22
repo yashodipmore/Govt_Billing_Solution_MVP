@@ -17,6 +17,46 @@
     margin-right: 20px;
 }
 
+/* File Manager Search Styling */
+.file-manager-modal {
+  --width: 70%;
+  --height: 80%;
+  --border-radius: 10px;
+}
+
+.file-manager-searchbar {
+  padding: 16px;
+  --background: #f8f9fa;
+  --border-radius: 8px;
+  margin: 8px 16px;
+}
+
+.file-manager-content {
+  --padding-top: 0;
+  --padding-bottom: 20px;
+}
+
+.file-manager-header {
+  --background: #3880ff;
+  --color: white;
+}
+
+.no-results-item {
+  --color: #666;
+  font-style: italic;
+  text-align: center;
+}
+
+.file-item {
+  --padding-start: 16px;
+  --padding-end: 16px;
+  --min-height: 56px;
+}
+
+.file-item:hover {
+  --background: #f5f5f5;
+}
+
 /*
 td:first-child,
 th:first-child {
