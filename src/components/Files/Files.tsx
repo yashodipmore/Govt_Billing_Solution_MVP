@@ -12,6 +12,11 @@ import {
   IonLabel,
   IonAlert,
   IonItemGroup,
+  IonSearchbar,
+  IonHeader,
+  IonToolbar,
+  IonTitle,
+  IonContent,
 } from "@ionic/react";
 import { fileTrayFull, trash, create } from "ionicons/icons";
 
@@ -25,6 +30,7 @@ const Files: React.FC<{
   const [listFiles, setListFiles] = useState(false);
   const [showAlert1, setShowAlert1] = useState(false);
   const [currentKey, setCurrentKey] = useState(null);
+  const [searchText, setSearchText] = useState("");
 
   const editFile = (key) => {
     props.store._getFile(key).then((data) => {
@@ -51,7 +57,13 @@ const Files: React.FC<{
 
   const temp = async () => {
     const files = await props.store._getAllFiles();
-    const fileList = Object.keys(files).map((key) => {
+    
+    // Filter files based on search text
+    const filteredFileKeys = Object.keys(files).filter((key) =>
+      key.toLowerCase().includes(searchText.toLowerCase())
+    );
+    
+    const fileList = filteredFileKeys.map((key) => {
       return (
         <IonItemGroup key={key}>
           <IonItem>
@@ -85,17 +97,48 @@ const Files: React.FC<{
     });
 
     const ourModal = (
-      <IonModal isOpen={listFiles} onDidDismiss={() => setListFiles(false)}>
-        <IonList>{fileList}</IonList>
-        <IonButton
-          expand="block"
-          color="secondary"
-          onClick={() => {
-            setListFiles(false);
-          }}
-        >
-          Back
-        </IonButton>
+      <IonModal 
+        isOpen={listFiles} 
+        onDidDismiss={() => {
+          setListFiles(false);
+          setSearchText(""); // Clear search when modal is dismissed
+        }}
+      >
+        <IonHeader>
+          <IonToolbar>
+            <IonTitle>File Manager</IonTitle>
+          </IonToolbar>
+        </IonHeader>
+        <IonContent>
+          <IonSearchbar
+            value={searchText}
+            debounce={300}
+            onIonInput={(e) => setSearchText(e.detail.value!)}
+            placeholder="Search files..."
+            showClearButton="focus"
+          />
+          <IonList>
+            {fileList.length > 0 ? (
+              fileList
+            ) : (
+              <IonItem>
+                <IonLabel>
+                  {searchText ? "No files found matching your search" : "No files available"}
+                </IonLabel>
+              </IonItem>
+            )}
+          </IonList>
+          <IonButton
+            expand="block"
+            color="secondary"
+            onClick={() => {
+              setListFiles(false);
+              setSearchText(""); // Clear search when closing modal
+            }}
+          >
+            Back
+          </IonButton>
+        </IonContent>
       </IonModal>
     );
     setModal(ourModal);
@@ -103,7 +146,7 @@ const Files: React.FC<{
 
   useEffect(() => {
     temp();
-  }, [listFiles]);
+  }, [listFiles, searchText]); // Re-run when search text changes
 
   return (
     <React.Fragment>
