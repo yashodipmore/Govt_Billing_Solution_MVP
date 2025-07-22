@@ -5,11 +5,12 @@ import { isPlatform, IonToast } from "@ionic/react";
 import { EmailComposer } from "capacitor-email-composer";
 import { Printer } from "@ionic-native/printer";
 import { IonActionSheet, IonAlert } from "@ionic/react";
-import { saveOutline, save, mail, print, logInOutline, logOutOutline } from "ionicons/icons";
+import { saveOutline, save, mail, print, logInOutline, logOutOutline, documentOutline, shareOutline, cloudDownloadOutline } from "ionicons/icons";
 import { APP_NAME } from "../../app-data.js";
 import { useAuth } from "../../contexts/AuthContext";
 import { authService } from "../../services/authService";
 import { useHistory } from "react-router-dom";
+import { exportAsCsv as exportCsvUtil, exportAsPDF as exportPdfUtil, sharePDF as sharePdfUtil } from "../../utils/exportUtils";
 
 const Menu: React.FC<{
   showM: boolean;
@@ -153,6 +154,27 @@ const Menu: React.FC<{
     }
   };
 
+  // CSV Export Function
+  const exportAsCsv = async () => {
+    const result = await exportCsvUtil(getCurrentFileName());
+    setToastMessage(result.message);
+    setShowToast1(true);
+  };
+
+  // PDF Export Function
+  const exportAsPDF = async (option: string = 'download') => {
+    const result = await exportPdfUtil(getCurrentFileName(), option as 'download' | 'share');
+    setToastMessage(result.message);
+    setShowToast1(true);
+  };
+
+  // Share PDF Function
+  const share = async () => {
+    const result = await sharePdfUtil(getCurrentFileName());
+    setToastMessage(result.message);
+    setShowToast1(true);
+  };
+
   return (
     <React.Fragment>
       <IonActionSheet
@@ -175,6 +197,30 @@ const Menu: React.FC<{
             handler: () => {
               setShowAlert3(true);
               console.log("Save As clicked");
+            },
+          },
+          {
+            text: "Export as CSV",
+            icon: cloudDownloadOutline,
+            handler: () => {
+              exportAsCsv();
+              console.log("Export as CSV clicked");
+            },
+          },
+          {
+            text: "Export as PDF",
+            icon: documentOutline,
+            handler: () => {
+              exportAsPDF('download');
+              console.log("Export as PDF clicked");
+            },
+          },
+          {
+            text: "Share PDF",
+            icon: shareOutline,
+            handler: () => {
+              share();
+              console.log("Share PDF clicked");
             },
           },
           {
