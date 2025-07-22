@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "785051742507",
+    "project_id": "govt-billing-solution",
+    "storage_bucket": "govt-billing-solution.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:785051742507:android:f8ebdb29070f2519a1d56e",
+        "android_client_info": {
+          "package_name": "io.ionic.starter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAb4OYViZqfYu6k6_ZNW3wHD6YpbUKyPvw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
