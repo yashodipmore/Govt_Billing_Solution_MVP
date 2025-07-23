@@ -24,6 +24,7 @@ import Menu from "../components/Menu/Menu";
 import Files from "../components/Files/Files";
 import NewFile from "../components/NewFile/NewFile";
 import { useAutoSave } from "../hooks/useAutoSave";
+import { useKeyboardShortcuts } from "../hooks/useKeyboardShortcuts";
 
 const Home: React.FC = () => {
   const [showMenu, setShowMenu] = useState(false);
@@ -89,6 +90,31 @@ const Home: React.FC = () => {
   const activateFooter = (footer) => {
     AppGeneral.activateFooterButton(footer);
   };
+
+  const handleUndo = () => {
+    try {
+      AppGeneral.undo();
+      setToastMessage("Undo successful");
+      setShowToast(true);
+    } catch (error) {
+      setToastMessage("Cannot undo");
+      setShowToast(true);
+    }
+  };
+
+  const handleRedo = () => {
+    try {
+      AppGeneral.redo();
+      setToastMessage("Redo successful");
+      setShowToast(true);
+    } catch (error) {
+      setToastMessage("Cannot redo");
+      setShowToast(true);
+    }
+  };
+
+  // Keyboard shortcuts for undo/redo
+  useKeyboardShortcuts(handleUndo, handleRedo);
 
   useEffect(() => {
     const data = DATA["home"][device]["msc"];

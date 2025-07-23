@@ -5,7 +5,7 @@ import { isPlatform, IonToast } from "@ionic/react";
 import { EmailComposer } from "capacitor-email-composer";
 import { Printer } from "@ionic-native/printer";
 import { IonActionSheet, IonAlert } from "@ionic/react";
-import { saveOutline, save, mail, print, logInOutline, logOutOutline, documentOutline, shareOutline, cloudDownloadOutline, lockClosedOutline } from "ionicons/icons";
+import { saveOutline, save, mail, print, logInOutline, logOutOutline, documentOutline, shareOutline, cloudDownloadOutline, lockClosedOutline, arrowUndoOutline, arrowRedoOutline } from "ionicons/icons";
 import { APP_NAME } from "../../app-data.js";
 import { useAuth } from "../../contexts/AuthContext";
 import { authService } from "../../services/authService";
@@ -76,6 +76,28 @@ const Menu: React.FC<{
       filename = filename.replace(" ", "");
     }
     return filename;
+  };
+
+  const doUndo = () => {
+    try {
+      AppGeneral.undo();
+      setToastMessage("Undo successful");
+      setShowToast1(true);
+    } catch (error) {
+      setToastMessage("Cannot undo");
+      setShowToast1(true);
+    }
+  };
+
+  const doRedo = () => {
+    try {
+      AppGeneral.redo();
+      setToastMessage("Redo successful");
+      setShowToast1(true);
+    } catch (error) {
+      setToastMessage("Cannot redo");
+      setShowToast1(true);
+    }
   };
 
   const doPrint = () => {
@@ -235,6 +257,22 @@ const Menu: React.FC<{
         isOpen={props.showM}
         onDidDismiss={() => props.setM()}
         buttons={[
+          {
+            text: "Undo",
+            icon: arrowUndoOutline,
+            handler: () => {
+              doUndo();
+              console.log("Undo clicked");
+            },
+          },
+          {
+            text: "Redo",
+            icon: arrowRedoOutline,
+            handler: () => {
+              doRedo();
+              console.log("Redo clicked");
+            },
+          },
           {
             text: "Save",
             icon: saveOutline,
