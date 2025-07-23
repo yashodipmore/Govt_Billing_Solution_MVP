@@ -5,7 +5,7 @@ import { isPlatform, IonToast } from "@ionic/react";
 import { EmailComposer } from "capacitor-email-composer";
 import { Printer } from "@ionic-native/printer";
 import { IonActionSheet, IonAlert } from "@ionic/react";
-import { saveOutline, save, mail, print, logInOutline, logOutOutline, documentOutline, shareOutline, cloudDownloadOutline } from "ionicons/icons";
+import { saveOutline, save, mail, print, logInOutline, logOutOutline, documentOutline, shareOutline, cloudDownloadOutline, lockClosedOutline } from "ionicons/icons";
 import { APP_NAME } from "../../app-data.js";
 import { useAuth } from "../../contexts/AuthContext";
 import { authService } from "../../services/authService";
@@ -24,6 +24,7 @@ const Menu: React.FC<{
   const [showAlert2, setShowAlert2] = useState(false);
   const [showAlert3, setShowAlert3] = useState(false);
   const [showAlert4, setShowAlert4] = useState(false);
+  const [showAlert5, setShowAlert5] = useState(false); // For password-protected save
   const [showToast1, setShowToast1] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const { currentUser } = useAuth();
@@ -90,23 +91,28 @@ const Menu: React.FC<{
       printWindow.print();
     }
   };
-  const doSave = () => {
+  const doSave = async () => {
     if (props.file === "default") {
       setShowAlert1(true);
       return;
     }
-    const content = encodeURIComponent(AppGeneral.getSpreadsheetContent());
-    const data = props.store._getFile(props.file);
-    const file = new File(
-      (data as any).created,
-      new Date().toString(),
-      content,
-      props.file,
-      props.bT
-    );
-    props.store._saveFile(file);
-    props.updateSelectedFile(props.file);
-    setShowAlert2(true);
+    try {
+      const content = encodeURIComponent(AppGeneral.getSpreadsheetContent());
+      const data = await props.store._getFile(props.file);
+      const file = new File(
+        (data as any).created,
+        new Date().toString(),
+        content,
+        props.file,
+        props.bT
+      );
+      await props.store._saveFile(file);
+      props.updateSelectedFile(props.file);
+      setShowAlert2(true);
+    } catch (error) {
+      setToastMessage("Error saving file");
+      setShowToast1(true);
+    }
   };
 
   const doSaveAs = async (filename) => {
@@ -132,6 +138,52 @@ const Menu: React.FC<{
       } else {
         setShowToast1(true);
       }
+    }
+  };
+
+  const saveAsPassword = async (alertData) => {
+    const { filename, password, confirmPassword } = alertData;
+    
+    if (!filename || !password || !confirmPassword) {
+      setToastMessage("All fields are required");
+      setShowToast1(true);
+      return;
+    }
+    
+    if (password !== confirmPassword) {
+      setToastMessage("Passwords do not match");
+      setShowToast1(true);
+      return;
+    }
+    
+    if (password.length < 4) {
+      setToastMessage("Password must be at least 4 characters long");
+      setShowToast1(true);
+      return;
+    }
+    
+    if (await _validateName(filename)) {
+      const content = encodeURIComponent(AppGeneral.getSpreadsheetContent());
+      const file = new File(
+        new Date().toString(),
+        new Date().toString(),
+        content,
+        filename,
+        props.bT,
+        password
+      );
+      
+      try {
+        await props.store._saveFile(file);
+        props.updateSelectedFile(filename);
+        setToastMessage(`Password-protected file "${filename}" saved successfully`);
+        setShowToast1(true);
+      } catch (error) {
+        setToastMessage("Failed to save password-protected file");
+        setShowToast1(true);
+      }
+    } else {
+      setShowToast1(true);
     }
   };
 
@@ -197,6 +249,14 @@ const Menu: React.FC<{
             handler: () => {
               setShowAlert3(true);
               console.log("Save As clicked");
+            },
+          },
+          {
+            text: "Save as Password Protected",
+            icon: lockClosedOutline,
+            handler: () => {
+              setShowAlert5(true);
+              console.log("Save as Password Protected clicked");
             },
           },
           {
@@ -303,6 +363,29 @@ const Menu: React.FC<{
           "</strong> saved successfully"
         }
         buttons={["Ok"]}
+      />
+      <IonAlert
+        animated
+        isOpen={showAlert5}
+        onDidDismiss={() => setShowAlert5(false)}
+        header="Save as Password Protected"
+        inputs={[
+          { name: "filename", type: "text", placeholder: "Enter filename" },
+          { name: "password", type: "password", placeholder: "Enter password" },
+          { name: "confirmPassword", type: "password", placeholder: "Confirm password" },
+        ]}
+        buttons={[
+          {
+            text: "Cancel",
+            role: "cancel",
+          },
+          {
+            text: "Save",
+            handler: (alertData) => {
+              saveAsPassword(alertData);
+            },
+          },
+        ]}
       />
       <IonToast
         animated

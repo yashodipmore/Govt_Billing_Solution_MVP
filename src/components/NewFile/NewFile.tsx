@@ -12,19 +12,23 @@ const NewFile: React.FC<{
   billType: number;
 }> = (props) => {
   const [showAlertNewFileCreated, setShowAlertNewFileCreated] = useState(false);
-  const newFile = () => {
+  const newFile = async () => {
     if (props.file !== "default") {
-      const content = encodeURIComponent(AppGeneral.getSpreadsheetContent());
-      const data = props.store._getFile(props.file);
-      const file = new File(
-        (data as any).created,
-        new Date().toString(),
-        content,
-        props.file,
-        props.billType
-      );
-      props.store._saveFile(file);
-      props.updateSelectedFile(props.file);
+      try {
+        const content = encodeURIComponent(AppGeneral.getSpreadsheetContent());
+        const data = await props.store._getFile(props.file);
+        const file = new File(
+          (data as any).created,
+          new Date().toString(),
+          content,
+          props.file,
+          props.billType
+        );
+        await props.store._saveFile(file);
+        props.updateSelectedFile(props.file);
+      } catch (error) {
+        console.error("Error saving current file:", error);
+      }
     }
     const msc = DATA["home"][AppGeneral.getDeviceType()]["msc"];
     AppGeneral.viewFile("default", JSON.stringify(msc));
