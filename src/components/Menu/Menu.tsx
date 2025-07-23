@@ -21,7 +21,6 @@ const Menu: React.FC<{
   bT: number;
 }> = (props) => {
   const [showAlert1, setShowAlert1] = useState(false);
-  const [showAlert2, setShowAlert2] = useState(false);
   const [showAlert3, setShowAlert3] = useState(false);
   const [showAlert4, setShowAlert4] = useState(false);
   const [showAlert5, setShowAlert5] = useState(false); // For password-protected save
@@ -108,7 +107,8 @@ const Menu: React.FC<{
       );
       await props.store._saveFile(file);
       props.updateSelectedFile(props.file);
-      setShowAlert2(true);
+      setToastMessage(`File "${props.file}" saved successfully!`);
+      setShowToast1(true);
     } catch (error) {
       setToastMessage("Error saving file");
       setShowToast1(true);
@@ -320,18 +320,6 @@ const Menu: React.FC<{
         header="Alert Message"
         message={
           "Cannot update <strong>" + getCurrentFileName() + "</strong> file!"
-        }
-        buttons={["Ok"]}
-      />
-      <IonAlert
-        animated
-        isOpen={showAlert2}
-        onDidDismiss={() => setShowAlert2(false)}
-        header="Save"
-        message={
-          "File <strong>" +
-          getCurrentFileName() +
-          "</strong> updated successfully"
         }
         buttons={["Ok"]}
       />
